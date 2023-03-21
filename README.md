@@ -1,4 +1,4 @@
-# Focalboard Ansible role
+# Prometheus Ansible role
 
 This is an [Ansible](https://www.ansible.com/) role which installs [Prometheus](https://prometheus.io/) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
