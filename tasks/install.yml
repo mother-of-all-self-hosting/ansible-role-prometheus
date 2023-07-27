@@ -20,6 +20,17 @@
     owner: "{{ prometheus_uid }}"
     group: "{{ prometheus_gid }}"
 
+- name: Ensure Prometheus support files created
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/{{ item }}.j2"
+    dest: "{{ prometheus_base_path }}/{{ item }}"
+    owner: "{{ prometheus_uid }}"
+    group: "{{ prometheus_gid }}"
+    mode: 0640
+  with_items:
+    - labels
+  when: prometheus_hostname != ''
+
 - name: Ensure Prometheus container image is pulled
   community.docker.docker_image:
     name: "{{ prometheus_container_image }}"
