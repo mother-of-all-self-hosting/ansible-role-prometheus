@@ -29,7 +29,6 @@
     mode: 0640
   with_items:
     - labels
-  when: prometheus_hostname != ''
 
 - name: Ensure Prometheus container image is pulled
   community.docker.docker_image:
