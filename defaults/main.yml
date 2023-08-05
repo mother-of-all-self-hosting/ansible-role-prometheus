@@ -12,6 +12,13 @@ prometheus_version: v2.45.0
 prometheus_uid: ''
 prometheus_gid: ''
 
+# The hostname at which prometheus is served.
+prometheus_hostname: ''
+
+# The path at which prometheus is served.
+# This value must either be `/` or not end with a slash (e.g. `/prometheus`).
+prometheus_path_prefix: /
+
 prometheus_base_path: "{{ prometheus_identifier }}"
 prometheus_config_path: "{{ prometheus_base_path }}/config"
 prometheus_data_path: "{{ prometheus_base_path }}/data"
@@ -40,6 +47,53 @@ prometheus_container_additional_networks: []
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:9090"), or empty string to not expose.
 prometheus_container_http_host_bind_port: ''
 
+
+# prometheus_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# See `../templates/labels.j2` for details.
+#
+# To inject your own other container labels, see `prometheus_container_labels_additional_labels`.
+prometheus_container_labels_traefik_enabled: false
+prometheus_container_labels_traefik_docker_network: "{{ prometheus_container_network }}"
+prometheus_container_labels_traefik_hostname: "{{ prometheus_hostname }}"
+# The path prefix must either be `/` or not end with a slash (e.g. `/prometheus`).
+prometheus_container_labels_traefik_path_prefix: "{{ prometheus_path_prefix }}"
+prometheus_container_labels_traefik_rule: "Host(`{{ prometheus_container_labels_traefik_hostname }}`){% if prometheus_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ prometheus_container_labels_traefik_path_prefix }}`){% endif %}"
+prometheus_container_labels_traefik_priority: 0
+prometheus_container_labels_traefik_entrypoints: web-secure
+prometheus_container_labels_traefik_tls: "{{ prometheus_container_labels_traefik_entrypoints != 'web' }}"
+prometheus_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+
+# Controls which additional headers to attach to all HTTP requests.
+# To add your own custom request headers, use `prometheus_container_labels_traefik_additional_response_headers_custom`
+prometheus_container_labels_traefik_additional_request_headers: "{{ prometheus_container_labels_traefik_additional_request_headers_auto | combine(prometheus_container_labels_traefik_additional_request_headers_custom) }}"
+prometheus_container_labels_traefik_additional_request_headers_auto: {}
+prometheus_container_labels_traefik_additional_request_headers_custom: {}
+
+# Controls which additional headers to attach to all HTTP responses.
+# To add your own custom response headers, use `prometheus_container_labels_traefik_additional_response_headers_custom`
+prometheus_container_labels_traefik_additional_response_headers: "{{ prometheus_container_labels_traefik_additional_response_headers_auto | combine(prometheus_container_labels_traefik_additional_response_headers_custom) }}"
+prometheus_container_labels_traefik_additional_response_headers_auto: |
+  {{
+    {}
+    | combine ({'X-XSS-Protection': prometheus_http_header_xss_protection} if prometheus_http_header_xss_protection else {})
+    | combine ({'X-Frame-Options': prometheus_http_header_frame_options} if prometheus_http_header_frame_options else {})
+    | combine ({'X-Content-Type-Options': prometheus_http_header_content_type_options} if prometheus_http_header_content_type_options else {})
+    | combine ({'Content-Security-Policy': prometheus_http_header_content_security_policy} if prometheus_http_header_content_security_policy else {})
+    | combine ({'Permission-Policy': prometheus_http_header_content_permission_policy} if prometheus_http_header_content_permission_policy else {})
+    | combine ({'Strict-Transport-Security': prometheus_http_header_strict_transport_security} if prometheus_http_header_strict_transport_security and prometheus_container_labels_traefik_tls else {})
+  }}
+prometheus_container_labels_traefik_additional_response_headers_custom: {}
+
+# prometheus_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `../templates/labels.j2` for details.
+#
+# Example:
+# prometheus_container_labels_additional_labels: |
+#   my.label=1
+#   another.label="here"
+prometheus_container_labels_additional_labels: ''
+
+
 # A list of extra arguments to pass to the container
 prometheus_container_extra_arguments: []
 
@@ -55,6 +109,19 @@ prometheus_process_extra_arguments: []
 
 # holds the final list of process arguments
 prometheus_process_arguments: "{{ prometheus_process_default_arguments + prometheus_process_extra_arguments }}"
+
+# prometheus_basic_auth_enabled controls whether HTTP Basic Auth is enabled.
+# Also see `prometheus_container_label_basicauth_users`.
+prometheus_basic_auth_enabled: false
+prometheus_basic_auth_username: ''
+prometheus_basic_auth_password: ''
+# prometheus_container_label_basicauth_users is populated at runtime based on
+# prometheus_basic_auth_username and prometheus_basic_auth_password
+prometheus_container_label_basicauth_users: ''
+prometheus_basic_auth_apache_container_image: "{{ prometheus_basic_auth_apache_container_image_registry_prefix }}httpd:{{ prometheus_basic_auth_apache_container_image_tag }}"
+prometheus_basic_auth_apache_container_image_tag: "2.4.56-alpine3.17"
+prometheus_basic_auth_apache_container_image_force_pull: "{{ prometheus_basic_auth_apache_container_image.endswith(':latest') }}"
+prometheus_basic_auth_apache_container_image_registry_prefix: docker.io/
 
 # Controls whether Prometheus will scrape its own process running in the container.
 # See: prometheus_config_scrape_configs_default
