@@ -19,7 +19,7 @@ prometheus_hostname: ''
 # This value must either be `/` or not end with a slash (e.g. `/prometheus`).
 prometheus_path_prefix: /
 
-prometheus_base_path: "{{ prometheus_identifier }}"
+prometheus_base_path: "/{{ prometheus_identifier }}"
 prometheus_config_path: "{{ prometheus_base_path }}/config"
 prometheus_data_path: "{{ prometheus_base_path }}/data"
 
