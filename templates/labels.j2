@@ -9,9 +9,9 @@ traefik.http.services.{{ prometheus_identifier }}.loadbalancer.server.port=9100
 
 {% set middlewares = [] %}
 
-{% if prometheus_basic_auth_enabled %}
-traefik.http.middlewares.{{ prometheus_identifier }}-auth.basicauth.users={{ prometheus_container_label_basicauth_users }}
-{% set middlewares = middlewares + [prometheus_identifier + '-auth@docker'] %}
+{% if prometheus_container_labels_metrics_middleware_basic_auth_enabled %}
+{% set middlewares = middlewares + [prometheus_identifier + '-basic-auth'] %}
+traefik.http.middlewares.{{ prometheus_identifier }}-basic-auth.basicauth.users={{ prometheus_container_labels_metrics_middleware_basic_auth_users }}
 {% endif %}
 
 traefik.http.middlewares.{{ prometheus_identifier }}-strip-prefix.stripprefix.prefixes={{ prometheus_path_prefix }}

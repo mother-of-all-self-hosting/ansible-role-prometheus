@@ -110,18 +110,9 @@ prometheus_process_extra_arguments: []
 # holds the final list of process arguments
 prometheus_process_arguments: "{{ prometheus_process_default_arguments + prometheus_process_extra_arguments }}"
 
-# prometheus_basic_auth_enabled controls whether HTTP Basic Auth is enabled.
-# Also see `prometheus_container_label_basicauth_users`.
-prometheus_basic_auth_enabled: false
-prometheus_basic_auth_username: ''
-prometheus_basic_auth_password: ''
-# prometheus_container_label_basicauth_users is populated at runtime based on
-# prometheus_basic_auth_username and prometheus_basic_auth_password
-prometheus_container_label_basicauth_users: ''
-prometheus_basic_auth_apache_container_image: "{{ prometheus_basic_auth_apache_container_image_registry_prefix }}httpd:{{ prometheus_basic_auth_apache_container_image_tag }}"
-prometheus_basic_auth_apache_container_image_tag: "2.4.56-alpine3.17"
-prometheus_basic_auth_apache_container_image_force_pull: "{{ prometheus_basic_auth_apache_container_image.endswith(':latest') }}"
-prometheus_basic_auth_apache_container_image_registry_prefix: docker.io/
+prometheus_container_labels_metrics_middleware_basic_auth_enabled: false
+# See: https://doc.traefik.io/traefik/middlewares/http/basicauth/#users
+prometheus_container_labels_metrics_middleware_basic_auth_users: ''
 
 # Controls whether Prometheus will scrape its own process running in the container.
 # See: prometheus_config_scrape_configs_default
