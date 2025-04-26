@@ -88,7 +88,6 @@ prometheus_container_labels_traefik_additional_response_headers_auto: |
   {{
     {}
     | combine ({'X-XSS-Protection': prometheus_http_header_xss_protection} if prometheus_http_header_xss_protection else {})
-    | combine ({'X-Frame-Options': prometheus_http_header_frame_options} if prometheus_http_header_frame_options else {})
     | combine ({'X-Content-Type-Options': prometheus_http_header_content_type_options} if prometheus_http_header_content_type_options else {})
     | combine ({'Content-Security-Policy': prometheus_http_header_content_security_policy} if prometheus_http_header_content_security_policy else {})
     | combine ({'Permission-Policy': prometheus_http_header_content_permission_policy} if prometheus_http_header_content_permission_policy else {})
