@@ -13,7 +13,7 @@ prometheus_enabled: true
 prometheus_identifier: prometheus
 
 # renovate: datasource=docker depName=prom/prometheus versioning=semver
-prometheus_version: v2.55.1
+prometheus_version: v3.3.0
 
 prometheus_uid: ''
 prometheus_gid: ''
