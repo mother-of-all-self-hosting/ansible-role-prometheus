@@ -46,6 +46,9 @@ prometheus_container_http_host_bind_port: ''
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 prometheus_container_network: "{{ prometheus_identifier }}"
 
+# The port number in the container
+prometheus_container_http_port: 9090
+
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
 prometheus_container_additional_networks: "{{ prometheus_container_additional_networks_auto + prometheus_container_additional_networks_custom }}"
