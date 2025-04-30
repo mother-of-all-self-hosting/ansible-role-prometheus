@@ -15,6 +15,9 @@
 prometheus_enabled: true
 
 prometheus_identifier: prometheus
+prometheus_base_path: "/{{ prometheus_identifier }}"
+prometheus_config_path: "{{ prometheus_base_path }}/config"
+prometheus_data_path: "{{ prometheus_base_path }}/data"
 
 # renovate: datasource=docker depName=prom/prometheus versioning=semver
 prometheus_version: v2.55.1
@@ -29,25 +32,17 @@ prometheus_hostname: ''
 # This value must either be `/` or not end with a slash (e.g. `/prometheus`).
 prometheus_path_prefix: /
 
-prometheus_base_path: "/{{ prometheus_identifier }}"
-prometheus_config_path: "{{ prometheus_base_path }}/config"
-prometheus_data_path: "{{ prometheus_base_path }}/data"
-
-# List of systemd services that the Prometheus systemd service depends on
-prometheus_systemd_required_services_list: "{{ prometheus_systemd_required_services_list_default + prometheus_systemd_required_services_list_auto + prometheus_systemd_required_services_list_custom }}"
-prometheus_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
-prometheus_systemd_required_services_list_auto: []
-prometheus_systemd_required_services_list_custom: []
-
-# List of systemd services that the Prometheus systemd service wants
-prometheus_systemd_wanted_services_list: []
-
 prometheus_container_image: "{{ prometheus_container_image_registry_prefix }}prom/prometheus:{{ prometheus_container_image_tag }}"
 prometheus_container_image_registry_prefix: "{{ prometheus_container_image_registry_prefix_upstream }}"
 prometheus_container_image_registry_prefix_upstream: "{{ prometheus_container_image_registry_prefix_upstream_default }}"
 prometheus_container_image_registry_prefix_upstream_default: docker.io/
 prometheus_container_image_tag: "{{ prometheus_version }}"
 prometheus_container_image_force_pull: "{{ prometheus_container_image.endswith(':latest') }}"
+
+# Controls whether the container exposes its HTTP port (tcp/9090 in the container).
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:9090"), or empty string to not expose.
+prometheus_container_http_host_bind_port: ''
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 prometheus_container_network: "{{ prometheus_identifier }}"
@@ -57,12 +52,6 @@ prometheus_container_network: "{{ prometheus_identifier }}"
 prometheus_container_additional_networks: "{{ prometheus_container_additional_networks_auto + prometheus_container_additional_networks_custom }}"
 prometheus_container_additional_networks_auto: []
 prometheus_container_additional_networks_custom: []
-
-# Controls whether the container exposes its HTTP port (tcp/9090 in the container).
-#
-# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:9090"), or empty string to not expose.
-prometheus_container_http_host_bind_port: ''
-
 
 # prometheus_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
 # See `../templates/labels.j2` for details.
@@ -157,6 +146,15 @@ prometheus_floc_optout_enabled: true
 # - https://hstspreload.org/#opt-in
 # See: `prometheus_http_header_strict_transport_security`
 prometheus_hsts_preload_enabled: false
+
+# List of systemd services that the Prometheus systemd service depends on
+prometheus_systemd_required_services_list: "{{ prometheus_systemd_required_services_list_default + prometheus_systemd_required_services_list_auto + prometheus_systemd_required_services_list_custom }}"
+prometheus_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+prometheus_systemd_required_services_list_auto: []
+prometheus_systemd_required_services_list_custom: []
+
+# List of systemd services that the Prometheus systemd service wants
+prometheus_systemd_wanted_services_list: []
 
 # A list of default arguments to pass to the prometheus process
 prometheus_process_default_arguments:
