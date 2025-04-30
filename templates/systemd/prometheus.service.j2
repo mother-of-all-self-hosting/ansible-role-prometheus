@@ -31,7 +31,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
 			--read-only \
 			--network={{ prometheus_container_network }} \
 			{% if prometheus_container_http_host_bind_port %}
-			-p {{ prometheus_container_http_host_bind_port }}:9090 \
+			-p {{ prometheus_container_http_host_bind_port }}:{{ prometheus_container_http_port }} \
 			{% endif %}
 			--label-file={{ prometheus_base_path }}/labels \
 			--mount type=bind,src={{ prometheus_config_path }},dst=/etc/prometheus \
