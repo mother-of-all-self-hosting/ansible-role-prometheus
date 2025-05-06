@@ -5,7 +5,7 @@
 
 ---
 
-- name: Ensure Prometheus paths exists
+- name: Ensure Prometheus paths exist
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -53,7 +53,7 @@
     driver: bridge
     driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
 
-- name: Ensure Prometheus systemd service installed
+- name: Ensure Prometheus systemd service is present
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/prometheus.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ prometheus_identifier }}.service"
