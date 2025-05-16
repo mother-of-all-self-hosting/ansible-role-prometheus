@@ -31,6 +31,6 @@
 - name: Fail if required settings for Traefik labels are not defined
   ansible.builtin.fail:
     msg: >
-      You need to define prometheus_hostname to use traefik labels.
+      You need to define prometheus_hostname to use Traefik labels.
   when: prometheus_container_labels_traefik_enabled and prometheus_hostname == ''
 
