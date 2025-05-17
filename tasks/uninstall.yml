@@ -18,13 +18,12 @@
         enabled: false
         daemon_reload: true
 
-    - name: Ensure Prometheus systemd service does not exists
+    - name: Ensure Prometheus systemd service does not exist
       ansible.builtin.file:
         path: "{{ devture_systemd_docker_base_systemd_path }}/{{ prometheus_identifier }}.service"
         state: absent
 
-    - name: Ensure Prometheus files deleted
+    - name: Ensure Prometheus path does not exist
       ansible.builtin.file:
         path: "{{ prometheus_base_path }}"
         state: absent
-
