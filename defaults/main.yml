@@ -102,7 +102,7 @@ prometheus_container_labels_additional_labels: "{{ prometheus_container_labels_a
 prometheus_container_labels_additional_labels_auto: {}
 prometheus_container_labels_additional_labels_custom: {}
 
-# A list of extra arguments to pass to the container
+# A list of extra arguments to pass to the container (`docker create` command)
 prometheus_container_extra_arguments: "{{ prometheus_container_extra_arguments_auto + prometheus_container_extra_arguments_custom }}"
 prometheus_container_extra_arguments_auto: []
 prometheus_container_extra_arguments_custom: []
