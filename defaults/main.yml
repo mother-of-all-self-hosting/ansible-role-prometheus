@@ -96,11 +96,11 @@ prometheus_container_labels_traefik_additional_response_headers_custom: {}
 #
 # Example:
 # prometheus_container_labels_additional_labels_custom: |
-#   my.label=1
-#   another.label="here"
-prometheus_container_labels_additional_labels: "{{ prometheus_container_labels_additional_labels_auto | combine(prometheus_container_labels_additional_labels_custom) }}"
-prometheus_container_labels_additional_labels_auto: {}
-prometheus_container_labels_additional_labels_custom: {}
+#   - my.label=1
+#   - another.label="here"
+prometheus_container_labels_additional_labels: "{{ prometheus_container_labels_additional_labels_auto + prometheus_container_labels_additional_labels_custom }}"
+prometheus_container_labels_additional_labels_auto: []
+prometheus_container_labels_additional_labels_custom: []
 
 # A list of extra arguments to pass to the container (`docker create` command)
 prometheus_container_extra_arguments: "{{ prometheus_container_extra_arguments_auto + prometheus_container_extra_arguments_custom }}"
