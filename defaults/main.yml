@@ -154,6 +154,17 @@ prometheus_floc_optout_enabled: true
 # See: `prometheus_http_header_strict_transport_security`
 prometheus_hsts_preload_enabled: false
 
+# A list of extra arguments to pass to the Prometheus process
+# Example: ['--SOME_ARGUMENT']
+prometheus_process_extra_arguments: "{{ prometheus_process_extra_arguments_default + prometheus_process_extra_arguments_auto + prometheus_process_extra_arguments_custom }}"
+prometheus_process_extra_arguments_default:
+  - "--config.file=/etc/prometheus/prometheus.yml"
+  - "--storage.tsdb.path=/prometheus"
+  - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+  - "--web.console.templates=/usr/share/prometheus/consoles"
+prometheus_process_extra_arguments_auto: []
+prometheus_process_extra_arguments_custom: []
+
 # List of systemd services that the Prometheus systemd service depends on
 prometheus_systemd_required_services_list: "{{ prometheus_systemd_required_services_list_default + prometheus_systemd_required_services_list_auto + prometheus_systemd_required_services_list_custom }}"
 prometheus_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
@@ -165,19 +176,6 @@ prometheus_systemd_wanted_services_list: "{{ prometheus_systemd_wanted_services_
 prometheus_systemd_wanted_services_list_default: []
 prometheus_systemd_wanted_services_list_auto: []
 prometheus_systemd_wanted_services_list_custom: []
-
-# A list of default arguments to pass to the prometheus process
-prometheus_process_default_arguments:
-  - "--config.file=/etc/prometheus/prometheus.yml"
-  - "--storage.tsdb.path=/prometheus"
-  - "--web.console.libraries=/usr/share/prometheus/console_libraries"
-  - "--web.console.templates=/usr/share/prometheus/consoles"
-
-# A list of extra arguments to pass to the prometheus process
-prometheus_process_extra_arguments: []
-
-# holds the final list of process arguments
-prometheus_process_arguments: "{{ prometheus_process_default_arguments + prometheus_process_extra_arguments }}"
 
 prometheus_container_labels_metrics_middleware_basic_auth_enabled: false
 # See: https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/
