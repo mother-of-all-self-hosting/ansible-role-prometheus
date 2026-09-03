@@ -96,7 +96,7 @@
     # `prometheus_version` carries a leading `v` (`v3.14.0`) but the API
     # reports the bare version (`3.14.0`). The comparison is a prefix match, so
     # that a build suffix appearing upstream does not fail the scenario.
-    - name: Assert the running Prometheus is the version the role asks for
+    - name: Assert the running Prometheus is the version this role installs
       ansible.builtin.assert:
         that: >-
           prometheus_buildinfo.json.data.version.startswith(
