@@ -12,14 +12,9 @@
 
   tasks:
     # The role is not included in this playbook, so its defaults are not in
-    # scope. Reading defaults/main.yml directly keeps the version assertion
-    # below tied to the value that Renovate bumps, with nothing to keep in
-    # sync in this scenario. include_vars reads from the controller.
-    #
-    # Only values describing the role itself may be read from this namespace.
-    # Anything this scenario tunes (the scrape job name, for example) comes
-    # from the scenario's group_vars instead.
-    - name: Load the Prometheus role defaults
+    # scope. Reading defaults/main.yml directly ties the version assertion
+    # below.
+    - name: Load the role defaults
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
         name: prometheus_defaults
