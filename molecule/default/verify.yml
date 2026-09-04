@@ -210,7 +210,7 @@
         fail_msg: "The Prometheus web interface did not render as expected"
         success_msg: "The Prometheus web interface is served"
 
-    - name: Show Prometheus verification summary
+    - name: Show the Prometheus verification summary
       ansible.builtin.debug:
         msg:
           - "Prometheus systemd: {{ prometheus_service.status.ActiveState }}"
