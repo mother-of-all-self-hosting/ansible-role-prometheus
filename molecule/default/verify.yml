@@ -97,10 +97,8 @@
           prometheus_buildinfo.json.data.version.startswith(
             prometheus_defaults.prometheus_version | string | regex_replace('^v', '')
           )
-        fail_msg: >-
-          Prometheus reports version {{ prometheus_buildinfo.json.data.version | default('none') }},
-          but the role asks for {{ prometheus_defaults.prometheus_version }}
-        success_msg: "Prometheus reports version {{ prometheus_buildinfo.json.data.version }}"
+        fail_msg: "Prometheus reports {{ prometheus_buildinfo.json.data.version | default('none') }}, expected {{ prometheus_defaults.prometheus_version }}"
+        success_msg: "Prometheus reports {{ prometheus_buildinfo.json.data.version }}"
 
     # The command line that the systemd unit builds from
     # `prometheus_process_extra_arguments`, read back out of the running
