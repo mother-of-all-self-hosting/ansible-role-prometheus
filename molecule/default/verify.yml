@@ -88,7 +88,7 @@
         return_content: true
       register: prometheus_buildinfo
 
-    # `prometheus_version` carries a leading `v` (`v3.14.0`) but the API
+    # `prometheus_version` carries a leading `v` (`v3.14.0`) but the binary
     # reports the bare version (`3.14.0`). The comparison is a prefix match, so
     # that a build suffix appearing upstream does not fail the scenario.
     - name: Assert the running Prometheus is the version this role installs
