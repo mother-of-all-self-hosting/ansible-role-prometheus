@@ -81,7 +81,7 @@
     # Tying the running version to `prometheus_version` is what makes this
     # scenario a real test of the version that Renovate bumps: a bump that
     # produces an unusable image cannot pass here.
-    - name: Query the version reported by the running Prometheus
+    - name: Query the version of the running Prometheus
       ansible.builtin.uri:
         url: "http://localhost:9090/api/v1/status/buildinfo"
         method: GET
