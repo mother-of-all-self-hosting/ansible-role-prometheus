@@ -11,6 +11,8 @@
   gather_facts: false
 
   tasks:
+    - name: Verify that Prometheus works
+      block:
     # The role is not included in this playbook, so its defaults are not in
     # scope. Reading defaults/main.yml directly ties the version assertion
     # below.
@@ -222,3 +224,19 @@
           - "Prometheus retention: {{ prometheus_flags.json.data['storage.tsdb.retention.time'] }}"
           - "Prometheus scrape job: {{ prometheus_self_process_scraper_job_name }} on {{ prometheus_self_instance }}"
           - "Prometheus web interface: {{ prometheus_endpoint.status }}"
+
+      rescue:
+        # Whatever went wrong, the reason is almost always in the systemd service log.
+        - name: Retrieve the Prometheus systemd service log
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=prometheus.service
+          register: prometheus_service_log
+          changed_when: false
+
+        - name: Show the Prometheus systemd service log
+          ansible.builtin.debug:
+            var: prometheus_service_log.stdout_lines
+
+        - name: Fail because verification did not pass
+          ansible.builtin.fail:
+            msg: "Prometheus verification failed. The systemd service log is printed above."
