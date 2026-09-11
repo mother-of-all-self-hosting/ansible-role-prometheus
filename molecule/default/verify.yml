@@ -10,6 +10,10 @@
   become: true
   gather_facts: false
 
+  vars:
+    prometheus_verify_units:
+      - prometheus.service
+
   tasks:
     - name: Verify that Prometheus works
       block:
@@ -21,13 +25,14 @@
             file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
             name: prometheus_defaults
 
-        - name: Wait for the Prometheus systemd service to become active (up to 180s)
+        - name: Wait for the Prometheus systemd services to become active (up to 180s each)
           ansible.builtin.systemd_service:
-            name: prometheus.service
-          register: prometheus_service
-          until: prometheus_service.status.ActiveState == 'active'
+            name: "{{ item }}"
+          register: prometheus_services
+          until: prometheus_services.status.ActiveState == 'active'
           retries: 36
           delay: 5
+          loop: "{{ prometheus_verify_units }}"
           # So that giving up is reported by the assertion below rather than as a
           # wall of systemd unit properties.
           failed_when: false
@@ -35,17 +40,20 @@
         # `Restart=always` in the systemd unit means that even a container which crashes
         # and gets restarted reads as active here, so this is a precondition rather than
         # a result.
-        - name: Assert the Prometheus systemd service is active
+        - name: Assert the Prometheus systemd services are active
           ansible.builtin.assert:
-            that: prometheus_service.status.ActiveState == 'active'
-            fail_msg: "prometheus.service is not active ({{ prometheus_service.status.ActiveState }})"
-            success_msg: "prometheus.service is active"
+            that: prometheus_services.results | map(attribute='status.ActiveState') | unique | list == ['active']
+            fail_msg: >-
+              Not every service is active:
+              {{ dict(prometheus_verify_units | zip(prometheus_services.results | map(attribute='status.ActiveState'))) }}
+            success_msg: "Every systemd service is active"
 
-        - name: Retrieve the Prometheus systemd service log for debugging
+        - name: Retrieve the Prometheus systemd services log for debugging
           when: prometheus_debug_service_enabled | bool
           ansible.builtin.command:
-            cmd: journalctl --no-pager --output=cat --unit=prometheus.service
+            cmd: "journalctl --no-pager --output=cat --unit={{ item }}"
           changed_when: false
+          loop: "{{ prometheus_verify_units }}"
 
         # A systemd unit reaching "active" only means that `docker start` has not
         # exited yet. This is the first thing that the Prometheus process itself
@@ -219,7 +227,7 @@
         - name: Show the Prometheus verification summary
           ansible.builtin.debug:
             msg:
-              - "Prometheus systemd: {{ prometheus_service.status.ActiveState }}"
+              - "Prometheus systemd: {% for unit, state in prometheus_verify_units | zip(prometheus_services.results | map(attribute='status.ActiveState')) %}{{ unit }} ({{ state }}){% if not loop.last %}, {% endif %}{% endfor %}"
               - "Prometheus version: {{ prometheus_buildinfo.json.data.version }}"
               - "Prometheus retention: {{ prometheus_flags.json.data['storage.tsdb.retention.time'] }}"
               - "Prometheus scrape job: {{ prometheus_self_process_scraper_job_name }} on {{ prometheus_self_instance }}"
