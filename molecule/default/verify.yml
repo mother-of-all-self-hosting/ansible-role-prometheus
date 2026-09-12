@@ -58,20 +58,23 @@
         # A systemd unit reaching "active" only means that `docker start` has not
         # exited yet. This is the first thing that the Prometheus process itself
         # has to answer, so it is where a container that never got going shows up.
-        - name: Wait for Prometheus to report itself healthy (up to 10m)
+        - name: Wait for Prometheus to report itself healthy (up to 180s)
           ansible.builtin.uri:
             url: "http://localhost:9090/-/healthy"
             method: GET
             return_content: true
-          register: prometheus_healthy
-          until: prometheus_healthy.status == 200
-          retries: 120
+          register: prometheus_health
+          until: "prometheus_health.status == 200 and 'Healthy' in prometheus_health.content"
+          retries: 36
           delay: 5
+          # So that giving up is reported by the assertion below rather than as a
+          # wall of systemd unit properties.
+          failed_when: false
 
         - name: Assert Prometheus reports itself healthy
           ansible.builtin.assert:
-            that: "'Healthy' in prometheus_healthy.content"
-            fail_msg: "Prometheus is not healthy: {{ prometheus_healthy.content | default('no content') }}"
+            that: "'Healthy' in prometheus_health.content"
+            fail_msg: "Prometheus did not report itself healthy: {{ prometheus_health.content | default('no response') }}"
             success_msg: "Prometheus reports itself healthy"
 
         # Readiness is a stronger statement than health: it only turns 200 once the
@@ -87,11 +90,14 @@
           until: prometheus_ready.status == 200
           retries: 60
           delay: 5
+          # So that giving up is reported by the assertion below rather than as a
+          # wall of systemd unit properties.
+          failed_when: false
 
         - name: Assert Prometheus reports itself ready
           ansible.builtin.assert:
             that: "'Ready' in prometheus_ready.content"
-            fail_msg: "Prometheus is not ready: {{ prometheus_ready.content | default('no content') }}"
+            fail_msg: "Prometheus did not report it was ready: {{ prometheus_ready.content | default('no response') }}"
             success_msg: "Prometheus reports itself ready"
 
         # Tying the running version to `prometheus_version` is what makes this
